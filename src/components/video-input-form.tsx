@@ -6,9 +6,14 @@ import { Button } from "./ui/button";
 import { ChangeEvent, FormEvent, useMemo, useRef, useState } from "react";
 import { getFFmpeg } from "@/lib/ffmpeg";
 import { fetchFile } from "@ffmpeg/util";
+import { api } from "@/lib/axios";
+
+type Status = 'waiting' | 'converting' | 'uploading' | 'generating' | 'success'
 
 export function VideoInputForm() {
 const [videoFile, setVideoFile] = useState<File | null>(null)
+const [status, setStatus] = useState<Status>('waiting')
+
 const promptInputRef = useRef<HTMLTextAreaElement>(null)
 
   function handleFileSelected(event: ChangeEvent<HTMLInputElement>) {
@@ -71,9 +76,27 @@ const promptInputRef = useRef<HTMLTextAreaElement>(null)
       return
     }
 
+    setStatus('converting')
+
     const audioFile = await convertVideoToAudio(videoFile)
 
-    console.log(audioFile, prompt)
+    const data = new FormData()
+
+    data.append('file', audioFile)
+
+    setStatus('uploading')
+
+    const response = await api.post('/videos', data)
+
+    const videoId = response.data.video.id
+
+    setStatus('generating')
+
+    await api.post(`/videos/${videoId}/transcription`, {
+      prompt,
+    })
+
+    setStatus('success')
   }
 
   const previewURL = useMemo(() => {
@@ -107,14 +130,15 @@ const promptInputRef = useRef<HTMLTextAreaElement>(null)
             <div className="space-y-2"> 
             <Label htmlFor="transcription_prompt" > Prompt de transcrição</Label>
             <Textarea
-            ref={promptInputRef} 
+            ref={promptInputRef}
+            disabled={status !== 'waiting'}
             id="transcription_prompt"
             className="h2 resize-none leading-relaxed"
             placeholder="Inclua palavras-chave mencionadas no vídeo separadas por vírgula (,)"
             />
              </div>
 
-             <Button type="submit" className="w-full">
+             <Button disabled={status !== 'waiting'} type="submit" className="w-full">
               Carregar vídeo
               <Upload  className="w-4 h-4 ml-2"/>
              </Button>
