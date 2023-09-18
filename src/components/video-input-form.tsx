@@ -10,7 +10,18 @@ import { api } from "@/lib/axios";
 
 type Status = 'waiting' | 'converting' | 'uploading' | 'generating' | 'success'
 
-export function VideoInputForm() {
+const statusMessages = {
+  converting: 'Convertendo...',
+  generating: 'Transcrevendo...',
+  uploading: 'Carregando...',
+  success: 'Sucesso!',
+}
+
+interface VideoInputFormProps {
+  onVideoUploaded: (id: string) => void
+}
+
+export function VideoInputForm(props: VideoInputFormProps) {
 const [videoFile, setVideoFile] = useState<File | null>(null)
 const [status, setStatus] = useState<Status>('waiting')
 
@@ -97,6 +108,8 @@ const promptInputRef = useRef<HTMLTextAreaElement>(null)
     })
 
     setStatus('success')
+
+    props.onVideoUploaded(videoId)
   }
 
   const previewURL = useMemo(() => {
@@ -138,9 +151,17 @@ const promptInputRef = useRef<HTMLTextAreaElement>(null)
             />
              </div>
 
-             <Button disabled={status !== 'waiting'} type="submit" className="w-full">
-              Carregar vídeo
-              <Upload  className="w-4 h-4 ml-2"/>
+             <Button
+              data-success={status === 'success'}
+              disabled={status !== 'waiting'} 
+              className="w-full data-[success:true]:bg-emerald-400"
+              type="submit" >
+              {status === 'waiting' ? (
+                <>
+                Carregar vídeo
+                <Upload  className="w-4 h-4 ml-2"/>
+                </>
+              ) : statusMessages[status]}
              </Button>
       </form>
   )
