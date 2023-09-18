@@ -154,7 +154,7 @@ const promptInputRef = useRef<HTMLTextAreaElement>(null)
              <Button
               data-success={status === 'success'}
               disabled={status !== 'waiting'} 
-              className="w-full data-[success:true]:bg-emerald-400"
+              className="w-full data-[success=true]:bg-emerald-400"
               type="submit" >
               {status === 'waiting' ? (
                 <>

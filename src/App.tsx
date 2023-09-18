@@ -27,6 +27,9 @@ export function App() {
       videoId,
       temperature,
     },
+    headers: {
+      'Content-type': 'application/json',
+    }
   })
 
   return (
@@ -48,8 +51,13 @@ export function App() {
       <main className="flex-1 p-6 flex gap-6">
         <div className="flex flex-col flex-1 gap-4">
           <div className="grid grid-rows-2 gap-4 flex-1">
-            <Textarea className="resize-none p-4 leading-relaxed" placeholder="Inclua o promp para a IA..." value={input} onChange={handleInputChange} />
-            <Textarea className="resize-none p-4 leading-relaxed" placeholder="Resultado gerado pela IA..." readOnly value={completion}/>
+            <Textarea className="resize-none p-4 leading-relaxed" placeholder="Inclua o promp para a IA..." 
+            value={input} 
+            onChange={handleInputChange} />
+            <Textarea className="resize-none p-4 leading-relaxed" placeholder="Resultado gerado pela IA..." 
+            readOnly 
+            value={completion}
+            />
           </div>
 
           <p className="text-sm text-muted-foreground">
